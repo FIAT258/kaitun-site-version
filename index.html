@@ -1,1 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Endermanzinho Hub Kaitun</title>
 
+<style>
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* FUNDO */
+body {
+  background: radial-gradient(circle at center, #050510, #000000 90%);
+  overflow: hidden;
+  font-family: monospace;
+}
+
+/* CANVAS */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* TITULO */
+.title {
+  position: absolute;
+  top: 40px;
+  width: 100%;
+  text-align: center;
+  font-size: 30px;
+  color: #a020f0;
+  text-shadow: 0 0 10px #a020f0, 0 0 40px #6a00ff;
+  z-index: 10;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="title">✨ Endermanzinho Hub Kaitun ✨</div>
+
+<canvas id="space"></canvas>
+
+<script>
+
+const canvas = document.getElementById("space");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+/* BURACO NEGRO */
+let blackHole = {
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  radius: 80
+};
+
+/* ESTRELAS */
+let stars = [];
+
+function criarEstrela() {
+  return {
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2 + 0.5,
+    speed: Math.random() * 0.3 + 0.1,
+    brilho: Math.random()
+  };
+}
+
+/* criar muitas estrelas */
+for (let i = 0; i < 500; i++) {
+  stars.push(criarEstrela());
+}
+
+/* DESENHAR BURACO NEGRO */
+function drawBlackHole() {
+
+  let grad = ctx.createRadialGradient(
+    blackHole.x, blackHole.y, 10,
+    blackHole.x, blackHole.y, blackHole.radius
+  );
+
+  grad.addColorStop(0, "black");
+  grad.addColorStop(1, "purple");
+
+  ctx.beginPath();
+  ctx.arc(blackHole.x, blackHole.y, blackHole.radius, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+
+/* ANIMAR */
+function animate() {
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawBlackHole();
+
+  stars.forEach((s, i) => {
+
+    /* distância até buraco negro */
+    let dx = blackHole.x - s.x;
+    let dy = blackHole.y - s.y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+
+    /* puxão fraco */
+    let force = 0.05;
+
+    s.x += dx / dist * force;
+    s.y += dy / dist * force;
+
+    /* brilho piscando */
+    s.brilho += 0.05;
+    let alpha = 0.5 + Math.sin(s.brilho) * 0.5;
+
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255," + alpha + ")";
+    ctx.fill();
+
+    /* se entrar no buraco negro */
+    if (dist < blackHole.radius) {
+      stars[i] = criarEstrela();
+    }
+
+  });
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+/* RESPONSIVO */
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  blackHole.x = canvas.width / 2;
+  blackHole.y = canvas.height / 2;
+});
+
+</script>
+
+</body>
+</html>
